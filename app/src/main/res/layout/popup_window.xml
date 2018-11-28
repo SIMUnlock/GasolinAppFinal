@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/layout_bg"
+    >
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+android:layout_marginLeft="10dp"
+        android:textSize="18dp"
+        android:text="Seleccione una gasolinera:"
+        android:textStyle="bold"
+        android:id="@+id/txtView"/>
+
+    <RadioGroup
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/radioGroupGas"
+        android:layout_marginTop="10dp"
+       >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:textSize="14dp"
+            android:text="Aumente el radio para encontrar más gasolineras"
+            android:textStyle="bold"
+            android:id="@+id/nomGas1"/>
+        <RadioButton
+            android:id="@+id/radioButtonGaso1"
+            android:layout_width="wrap_content"
+            android:drawableLeft="@drawable/close_circle"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="#000000"
+            android:text="N/A" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:textSize="14dp"
+            android:text="Aumente el radio para encontrar más gasolineras"
+            android:textStyle="bold"
+            android:id="@+id/nomGas2"/>
+
+        <RadioButton
+            android:id="@+id/radioButtonGaso2"
+            android:layout_width="wrap_content"
+            android:drawableLeft="@drawable/close_circle"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="N/A" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:textSize="14dp"
+            android:text="Aumente el radio para encontrar más gasolineras"
+            android:textStyle="bold"
+            android:id="@+id/nomGas3"/>
+
+        <RadioButton
+            android:id="@+id/radioButtonGaso3"
+            android:layout_width="wrap_content"
+            android:drawableLeft="@drawable/close_circle"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="N/A" />
+    </RadioGroup>
+
+</LinearLayout>
