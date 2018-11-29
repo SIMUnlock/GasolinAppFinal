@@ -25,6 +25,12 @@
             app:layout_scrollFlags="scroll|enterAlways" />
 
     </android.support.design.widget.AppBarLayout>
+
+
+
+
+
+
     <include layout="@layout/content_main"></include>
 
 

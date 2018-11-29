@@ -25,6 +25,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
@@ -32,6 +33,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -57,7 +59,9 @@ public class MainActivity extends AppCompatActivity
     private MenuItem itemSesion;
     private static NavigationView navigationView;
     private static TextView tipoGasStr,correoHeader;
+    public static ImageView logoGasolina;
     private static LinearLayout test2;
+    private static Toolbar toolbar;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,7 +86,7 @@ public class MainActivity extends AppCompatActivity
                 .putBoolean("isFirstRun", false).apply();
 
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
 
 
 
@@ -114,7 +118,7 @@ public class MainActivity extends AppCompatActivity
 
 
 
-
+        FirebaseApp.initializeApp(this);
         auth = FirebaseAuth.getInstance();
         database = FirebaseDatabase .getInstance();
 
@@ -146,21 +150,25 @@ public class MainActivity extends AppCompatActivity
                                     if (Integer.parseInt(usuarioLogin.getTipogasolina()) == 1) {
                                         test2.setBackgroundColor(Color.parseColor("#007800"));
                                         tipoGasStr.setText("Gasolina: Regular");
+                                        toolbar.setTitleTextColor(Color.parseColor("#007800"));
+
                                     }
                                     if (Integer.parseInt(usuarioLogin.getTipogasolina()) == 2) {
 
                                         test2.setBackgroundColor(Color.parseColor("#7e0000"));
+                                        toolbar.setTitleTextColor(Color.parseColor("#e60000"));
                                         tipoGasStr.setText("Gasolina: Premium");
                                     }
                                     if (Integer.parseInt(usuarioLogin.getTipogasolina()) == 3) {
 
                                         test2.setBackgroundColor(Color.parseColor("#000000"));
+                                        toolbar.setTitleTextColor(Color.parseColor("#000000"));
                                         tipoGasStr.setText("Gasolina: Diesel");
                                     }
 
                                     correoHeader.setText(usuarioLogin.getCorreo());
                                     MapsActivity.tipoGasolina = Integer.parseInt(usuarioLogin.getTipogasolina());
-
+                                    SettingsActivity.variableUpdate=1;
                                     itemtest.setTitle("Cerrar Sesión");
                                 }
 
@@ -248,15 +256,19 @@ public class MainActivity extends AppCompatActivity
                 if (Integer.parseInt(usuarioLogin.getTipogasolina()) == 1) {
                     test2.setBackgroundColor(Color.parseColor("#007800"));
                     tipoGasStr.setText("Gasolina: Regular");
+                    toolbar.setTitleTextColor(Color.parseColor("#e60000"));
+
                 }
                 if (Integer.parseInt(usuarioLogin.getTipogasolina()) == 2) {
 
                     test2.setBackgroundColor(Color.parseColor("#7e0000"));
+                    toolbar.setTitleTextColor(Color.parseColor("#7e0000"));
                     tipoGasStr.setText("Gasolina: Premium");
                 }
                 if (Integer.parseInt(usuarioLogin.getTipogasolina()) == 3) {
 
                     test2.setBackgroundColor(Color.parseColor("#000000"));
+                    toolbar.setTitleTextColor(Color.parseColor("#000000"));
                     tipoGasStr.setText("Gasolina: Diesel");
                 }
                 DatabaseReference updateData = FirebaseDatabase.getInstance()
@@ -266,16 +278,17 @@ public class MainActivity extends AppCompatActivity
             }else if (SettingsActivity.variablereturn==1){
 
                 if (MapsActivity.tipoGasolina == 1) {
+                    toolbar.setTitleTextColor(Color.parseColor("#e60000"));
                     test2.setBackgroundColor(Color.parseColor("#007800"));
                     tipoGasStr.setText("Gasolina: Regular");
                 }
                 if (MapsActivity.tipoGasolina== 2) {
-
+                    toolbar.setTitleTextColor(Color.parseColor("#7e0000"));
                     test2.setBackgroundColor(Color.parseColor("#7e0000"));
                     tipoGasStr.setText("Gasolina: Premium");
                 }
                 if (MapsActivity.tipoGasolina == 3) {
-
+                    toolbar.setTitleTextColor(Color.parseColor("#000000"));
                     test2.setBackgroundColor(Color.parseColor("#000000"));
                     tipoGasStr.setText("Gasolina: Diesel");
                 }
@@ -480,7 +493,9 @@ public class MainActivity extends AppCompatActivity
                 usuarioLogin=null;
                 tipoGasStr.setText("Gasolina: Regular");
                 correoHeader.setText("correo@gasolinApp.com");
+                toolbar.setTitleTextColor(Color.parseColor("#007800"));
                 test2.setBackgroundColor(Color.parseColor("#007800"));
+                SettingsActivity.variableUpdate=1;
                 MapsActivity.tipoGasolina=1;
                 item.setTitle("Iniciar Sesión");
             }

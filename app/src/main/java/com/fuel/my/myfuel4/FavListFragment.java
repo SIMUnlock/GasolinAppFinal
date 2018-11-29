@@ -116,9 +116,18 @@ class FavViewHolder extends RecyclerView.ViewHolder {
     ImageView bind (Estaciones estaciones) {
 
         nombreEstacaion.setText (estaciones.getNombre());
+        if(estaciones.getPrecio().getRegular()!=null)
         regular.setText("$"+estaciones.getPrecio().getRegular());
-        premium.setText("$"+estaciones.getPrecio().getPremium());
-        diesel.setText("$"+estaciones.getPrecio().getPremium());
+        else
+            regular.setText("$ N/A");
+        if(estaciones.getPrecio().getPremium()!=null)
+            premium.setText("$"+estaciones.getPrecio().getPremium());
+        else
+            premium.setText("$ N/A");
+        if(estaciones.getPrecio().getDiesel()!=null)
+            diesel.setText("$"+estaciones.getPrecio().getDiesel());
+        else
+            diesel.setText("$ N/A");
         update.setText("Actualización: "+estaciones.getPrecio().getActualizacion());
         corazon.setImageResource(R.drawable.heartselected);
         return corazon;

@@ -117,6 +117,7 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback {
     private List<Estaciones> copiaEstaciones=null;
     private ClusterManager<Estaciones> mClusterManager;
     public static float rango=0.009f;
+    public static ImageView logoGasolina;
     List<Estaciones> entries = null;
     private Marker userMarker;
     private boolean isMarkerRotating;
@@ -132,6 +133,7 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         return inflater.inflate(R.layout.activity_maps, container, false);
+
     }
 
     RadioGroup mMode;
@@ -427,160 +429,13 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback {
                         route.remove();
                     mClusterManager.clearItems();
                     mClusterManager.cluster();
+                    mClusterManager=null;
 
                     myStations.forEach(test -> test.setPosicion(0));
 
 
                     copiaEstaciones=myStations;
-
-
-
-                    copiaEstaciones=copiaEstaciones.stream()
-                            .filter(p -> !((Double.parseDouble(p.getX())<=miUbicacion.longitude-rango ||
-                                    Double.parseDouble(p.getX())>=miUbicacion.longitude+rango)) ).collect(Collectors.toList())
-                    ;
-
-                    copiaEstaciones = copiaEstaciones.stream()
-                            .filter(p -> !((Double.parseDouble(p.getY())<=miUbicacion.latitude-rango ||
-                                    Double.parseDouble(p.getY())>=miUbicacion.latitude+rango)) ).collect(Collectors.toList())
-                    ;
-
-
-                    mClusterManager = new ClusterManager<>(getContext(), mMap);
-
-                    mMap.setOnCameraIdleListener(mClusterManager);
-                    mMap.setOnMarkerClickListener(mClusterManager);
-                    mMap.setOnInfoWindowClickListener(mClusterManager);
-
-
-
-
-
-                    for (int i = 0; i < copiaEstaciones.size(); i++) {
-                        if(copiaEstaciones.get(i).getPrecio()==null)
-                        {
-                            copiaEstaciones.remove(i);
-                            continue;
-                        }
-                        if(tipoGasolina==1){
-                            if (copiaEstaciones.get(i).getPrecio().getRegular()==null) {
-                                copiaEstaciones.remove(i);
-                                i--;
-                                continue;
-                            }
-                        }
-                        if(tipoGasolina==2){
-
-                            if (copiaEstaciones.get(i).getPrecio().getPremium()==null) {
-                                copiaEstaciones.remove(i);
-                                i--;
-                                continue;
-                            }
-                        }
-                        if(tipoGasolina==3){
-                            if (copiaEstaciones.get(i).getPrecio().getDiesel()==null) {
-                                copiaEstaciones.remove(i);
-                                i--;
-                                continue;
-                            }
-                        }
-
-
-
-                    }
-
-                    if(tipoGasolina==1){
-                        copiaEstaciones.sort((f1, f2) -> Float.valueOf(f1.getPrecio().getRegular()).compareTo(Float.valueOf(f2.getPrecio().getRegular()) ));
-                    }
-                    if(tipoGasolina==2){
-
-                        copiaEstaciones.sort((f1, f2) -> Float.valueOf(f1.getPrecio().getPremium()).compareTo(Float.valueOf(f2.getPrecio().getPremium()) ));
-
-                    }
-
-                    if(tipoGasolina==3){
-
-                        copiaEstaciones.sort((f1, f2) -> Float.valueOf(f1.getPrecio().getDiesel()).compareTo(Float.valueOf(f2.getPrecio().getDiesel()) ));
-
-                    }
-
-                    if(copiaEstaciones.size()==0)
-                        return null;
-
-                    if(copiaEstaciones.size()==1)
-                        copiaEstaciones.get(0).setPosicion(1);
-
-                    else if (copiaEstaciones.size()==2){
-                        copiaEstaciones.get(0).setPosicion(1);
-                        copiaEstaciones.get(1).setPosicion(2);
-                    }else
-                    {
-                        copiaEstaciones.get(0).setPosicion(1);
-                        copiaEstaciones.get(1).setPosicion(2);
-                        copiaEstaciones.get(2).setPosicion(3);
-                    }
-
-
-
-                    mClusterManager.addItems(copiaEstaciones);
-                    mClusterManager.setRenderer(new MyClusterRenderer(getContext(), mMap,mClusterManager));
-                    CustomInfoWindowGoogleMap customInfoWindow = new CustomInfoWindowGoogleMap(LayoutInflater.from(getContext()));
-                    mClusterManager.getMarkerCollection()
-                            .setOnInfoWindowAdapter(customInfoWindow);
-
-                    mMap.setInfoWindowAdapter(mClusterManager.getMarkerManager());
-
-                    mMap.setOnInfoWindowCloseListener(new GoogleMap.OnInfoWindowCloseListener() {
-
-                        @Override
-                        public void onInfoWindowClose(Marker marker) {
-                            doubleTap=0;
-                        }
-                    });
-                    mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
-                        @Override
-                        public void onInfoWindowClick(Marker marker) {
-                            doubleTap++;
-                            if(doubleTap==2){
-                                if(MainActivity.user!=null){
-                                    DatabaseReference updateData = FirebaseDatabase.getInstance()
-                                            .getReference("usuarios")
-                                            .child(MainActivity.user.getUid());
-                                    Map<String, Object> postValues = new HashMap<String,Object>();
-                                    Gson gson = new Gson();
-                                    Estaciones estacion = gson.fromJson(marker.getSnippet(),Estaciones.class);
-
-                                    if(MainActivity.usuarioLogin.getFavoritos()==null){
-                                        HashMap<String,String> favos = new HashMap<>(0);
-                                        favos.put(estacion.getPlace_id(),estacion.getPlace_id());
-                                        MainActivity.usuarioLogin.setFavoritos(favos);
-                                        postValues.put("favoritos",MainActivity.usuarioLogin.getFavoritos());
-                                        updateData.updateChildren(postValues);
-                                    }else if(MainActivity.usuarioLogin.getFavoritos()!=null && !MainActivity.usuarioLogin.getFavoritos().containsKey(estacion.getPlace_id())){
-                                        MainActivity.usuarioLogin.getFavoritos().put(estacion.getPlace_id(),estacion.getPlace_id());
-
-                                        updateData.child("favoritos").setValue(MainActivity.usuarioLogin.getFavoritos());
-                                    }else{
-                                        MainActivity.usuarioLogin.getFavoritos().remove(estacion.getPlace_id());
-                                        updateData.child("favoritos").setValue(MainActivity.usuarioLogin.getFavoritos());
-                                    }
-
-
-                                    marker.hideInfoWindow();
-                                    marker.showInfoWindow();
-                                }else{
-                                    Toast.makeText(getContext(),"Inicie sesión para empezar a agregar favoritos ♥",Toast.LENGTH_LONG).show();
-                                }
-                            }
-                        }
-
-                    });
-                    mClusterManager.cluster();
-
-
-
-
-
+                    dibujaEstaciones(copiaEstaciones);
 
                 }
 
@@ -613,10 +468,6 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback {
                 return true;
             }
         });
-
-
-
-
 
         if(getActivity()!=null) {
             SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager() .findFragmentById(R.id.map);
@@ -777,6 +628,12 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback {
                                             controlShake = 0;
                                         }
 
+                                        if(SettingsActivity.variableUpdate==1){
+                                            if(copiaEstaciones!=null)
+                                                dibujaEstaciones(copiaEstaciones);
+                                            SettingsActivity.variableUpdate=0;
+                                        }
+
                                         if (lastPos == null)
                                             lastPos = new LatLng(location.getLatitude(), location.getLongitude());
 
@@ -926,28 +783,28 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback {
         protected void onPostExecute(List<List<HashMap<String, String>>> result) {
             ArrayList<LatLng> points;
             PolylineOptions lineOptions = null;
+            if(result!=null) {
+                for (int i = 0; i < result.size(); i++) {
+                    points = new ArrayList<>();
+                    lineOptions = new PolylineOptions();
 
-            for (int i = 0; i < result.size(); i++) {
-                points = new ArrayList<>();
-                lineOptions = new PolylineOptions();
+                    List<HashMap<String, String>> path = result.get(i);
 
-                List<HashMap<String, String>> path = result.get(i);
+                    for (int j = 0; j < path.size(); j++) {
+                        HashMap<String, String> point = path.get(j);
 
-                for (int j = 0; j < path.size(); j++) {
-                    HashMap<String, String> point = path.get(j);
+                        double lat = Double.parseDouble(point.get("lat"));
+                        double lng = Double.parseDouble(point.get("lng"));
+                        LatLng position = new LatLng(lat, lng);
 
-                    double lat = Double.parseDouble(point.get("lat"));
-                    double lng = Double.parseDouble(point.get("lng"));
-                    LatLng position = new LatLng(lat, lng);
+                        points.add(position);
+                    }
+                    lineOptions.addAll(points);
+                    lineOptions.width(15);
+                    lineOptions.color(Color.rgb(127, 191, 63));
 
-                    points.add(position);
+
                 }
-                lineOptions.addAll(points);
-                lineOptions.width(15);
-                lineOptions.color(Color.rgb(127,191,63));
-
-
-
             }
 
             if(lineOptions != null) {
@@ -957,6 +814,9 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback {
             }
             else {
                 Log.d("onPostExecute","sin polilineas");
+                controlShake=0;
+                Toast.makeText(getContext(),"Verifique su conexión de internet",Toast.LENGTH_LONG).show();
+
             }
         }
     }
@@ -1070,71 +930,79 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback {
         @Override
         protected void onPostExecute(List<Estaciones> result) {
             myStations= result;
+            if(myStations!=null) {
 
 
-            Map<String, List<Estaciones>> marksEstaciones = myStations.stream()
-                    .collect(Collectors.groupingBy(Estaciones::getPlace_id, Collectors.toList()));
+                Map<String, List<Estaciones>> marksEstaciones = myStations.stream()
+                        .collect(Collectors.groupingBy(Estaciones::getPlace_id, Collectors.toList()));
 
 
-            myPrices = myPrices.stream()
-                    .flatMap(o1 -> marksEstaciones.get(o1.getPlace_id()).stream().map(o2 -> {
-                        if(o2.getPrecio()!=null)
-                        {
-                            if( o2.getPrecio().getActualizacion()!=null && o1.getActualizacion()!=null){
-                                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-                                Date convertedDate1 ;
-                                Date convertedDate2 ;
-                                try {
-                                    convertedDate1 = dateFormat.parse(o2.getPrecio().getActualizacion());
-                                    convertedDate2 = dateFormat.parse(o1.getActualizacion());
-                                    if(convertedDate2.compareTo(convertedDate1)>0){
-                                        o2.getPrecio().setActualizacion(o1.getActualizacion());
+                myPrices = myPrices.stream()
+                        .flatMap(o1 -> marksEstaciones.get(o1.getPlace_id()).stream().map(o2 -> {
+                            if (o2.getPrecio() != null) {
+                                if (o2.getPrecio().getActualizacion() != null && o1.getActualizacion() != null) {
+                                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+                                    Date convertedDate1;
+                                    Date convertedDate2;
+                                    try {
+                                        convertedDate1 = dateFormat.parse(o2.getPrecio().getActualizacion());
+                                        convertedDate2 = dateFormat.parse(o1.getActualizacion());
+                                        if (convertedDate2.compareTo(convertedDate1) > 0) {
+                                            o2.getPrecio().setActualizacion(o1.getActualizacion());
+                                        }
+                                    } catch (ParseException e) {
+                                        // TODO Auto-generated catch block
+                                        e.printStackTrace();
                                     }
-                                } catch (ParseException e) {
-                                    // TODO Auto-generated catch block
-                                    e.printStackTrace();
+                                } else if (o2.getPrecio().getActualizacion() == null) {
+                                    o2.getPrecio().setActualizacion(o1.getActualizacion());
                                 }
-                            }else if(o2.getPrecio().getActualizacion()==null){
-                                o2.getPrecio().setActualizacion(o1.getActualizacion());
-                            }
-                            if(o1.getRegular()!=null && o2.getPrecio().getRegular()==null)
-                                o2.getPrecio().setRegular(o1.getRegular());
-                            if(o1.getPremium()!=null && o2.getPrecio().getPremium()==null)
-                                o2.getPrecio().setPremium(o1.getPremium());
-                            if(o1.getDiesel()!=null && o2.getPrecio().getDiesel()==null)
-                                o2.getPrecio().setDiesel(o1.getDiesel());
-                        }else
-                            o2.setPrecio(o1);
-                        return o1;
-                    }))
+                                if (o1.getRegular() != null && o2.getPrecio().getRegular() == null)
+                                    o2.getPrecio().setRegular(o1.getRegular());
+                                if (o1.getPremium() != null && o2.getPrecio().getPremium() == null)
+                                    o2.getPrecio().setPremium(o1.getPremium());
+                                if (o1.getDiesel() != null && o2.getPrecio().getDiesel() == null)
+                                    o2.getPrecio().setDiesel(o1.getDiesel());
+                            } else
+                                o2.setPrecio(o1);
+                            return o1;
+                        }))
 
-                    .collect(Collectors.toList());
+                        .collect(Collectors.toList());
 
 
+                try {
+                    FileOutputStream f = new FileOutputStream(new File(getContext().getFilesDir() + "/estaciones.txt"));
 
-            try {
-                FileOutputStream f = new FileOutputStream(new File(getContext().getFilesDir()+"/estaciones.txt"));
+                    int bufferSize = 16 * 1024;
 
-                int bufferSize = 16 * 1024;
+                    ObjectOutputStream o = new ObjectOutputStream(new BufferedOutputStream(f, bufferSize));
 
-                ObjectOutputStream o = new ObjectOutputStream(new BufferedOutputStream(f, bufferSize));
+                    o.writeObject(myStations);
+                    o.close();
+                    f.close();
+                } catch (FileNotFoundException e) {
+                    System.out.println(e);
+                } catch (IOException e) {
+                    System.out.println("Error initializing stream");
+                }
 
-                o.writeObject(myStations);
-                o.close();
-                f.close();
-            } catch (FileNotFoundException e) {
-                System.out.println(e);
-            } catch (IOException e) {
-                System.out.println("Error initializing stream");
+
+                dibujaEstaciones(myStations);
             }
+            else{
+                Toast.makeText(getContext(),"Verifique su conexión de internet",Toast.LENGTH_LONG).show();
 
-
-            dibujaEstaciones(myStations);
+            }
 
         }
     }
 
     private void dibujaEstaciones(List<Estaciones> myStations){
+        if(mClusterManager!=null){
+            mClusterManager.clearItems();
+            mClusterManager.cluster();
+        }
         copiaEstaciones = myStations;
         copiaEstaciones = copiaEstaciones.stream()
                 .filter(p -> !((Double.parseDouble(p.getX())<=miUbicacion.longitude-rango ||
@@ -1228,7 +1096,7 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback {
                 .setOnInfoWindowAdapter(customInfoWindow);
 
         mMap.setInfoWindowAdapter(mClusterManager.getMarkerManager());
-
+        mClusterManager.cluster();
         mMap.setOnInfoWindowCloseListener(new GoogleMap.OnInfoWindowCloseListener() {
 
             @Override
@@ -1237,45 +1105,82 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback {
             }
         });
         mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
-            @Override
-            public void onInfoWindowClick(Marker marker) {
-                doubleTap++;
-                if(doubleTap==2){
-                    if(MainActivity.user!=null){
-                        DatabaseReference updateData = FirebaseDatabase.getInstance()
-                                .getReference("usuarios")
-                                .child(MainActivity.user.getUid());
-                        Map<String, Object> postValues = new HashMap<String,Object>();
-                        Gson gson = new Gson();
-                        Estaciones estacion = gson.fromJson(marker.getSnippet(),Estaciones.class);
+                                    @Override
+                        public void onInfoWindowClick(Marker marker) {
+                            doubleTap++;
+                            if(doubleTap==2){
+                                if(MainActivity.user!=null){
+                                    DatabaseReference updateData = FirebaseDatabase.getInstance()
+                                            .getReference("usuarios")
+                                            .child(MainActivity.user.getUid());
+                                    Map<String, Object> postValues = new HashMap<String,Object>();
+                                    Gson gson = new Gson();
+                                    Estaciones estacion = gson.fromJson(marker.getSnippet(),Estaciones.class);
 
-                        if(MainActivity.usuarioLogin.getFavoritos()==null){
-                            HashMap<String,String> favos = new HashMap<>(0);
-                            favos.put(estacion.getPlace_id(),estacion.getPlace_id());
-                            MainActivity.usuarioLogin.setFavoritos(favos);
-                            postValues.put("favoritos",MainActivity.usuarioLogin.getFavoritos());
-                            updateData.updateChildren(postValues);
-                        }else if(MainActivity.usuarioLogin.getFavoritos()!=null && !MainActivity.usuarioLogin.getFavoritos().containsKey(estacion.getPlace_id())){
-                            MainActivity.usuarioLogin.getFavoritos().put(estacion.getPlace_id(),estacion.getPlace_id());
+                                    if(MainActivity.usuarioLogin.getFavoritos()==null){
+                                        HashMap<String,String> favos = new HashMap<>(0);
+                                        favos.put(estacion.getPlace_id(),estacion.getPlace_id());
+                                        MainActivity.usuarioLogin.setFavoritos(favos);
+                                        postValues.put("favoritos",MainActivity.usuarioLogin.getFavoritos());
+                                        updateData.updateChildren(postValues);
+                                        MainActivity.usuarioLogin.getFavoritos().put(estacion.getPlace_id(),estacion.getPlace_id());
+                                        mClusterManager.clearItems();
+                                        mClusterManager.cluster();
 
-                            updateData.child("favoritos").setValue(MainActivity.usuarioLogin.getFavoritos());
-                        }else{
-                            MainActivity.usuarioLogin.getFavoritos().remove(estacion.getPlace_id());
-                            updateData.child("favoritos").setValue(MainActivity.usuarioLogin.getFavoritos());
+                                        mClusterManager.addItems(copiaEstaciones);
+                                        mClusterManager.setRenderer(new MyClusterRenderer(getContext(), mMap,mClusterManager));
+                                        CustomInfoWindowGoogleMap customInfoWindow = new CustomInfoWindowGoogleMap(LayoutInflater.from(getContext()));
+                                        mClusterManager.getMarkerCollection()
+                                                .setOnInfoWindowAdapter(customInfoWindow);
+
+                                        mMap.setInfoWindowAdapter(mClusterManager.getMarkerManager());
+                                        mClusterManager.cluster();
+                                        //CustomInfoWindowGoogleMap customInfoWindow = new CustomInfoWindowGoogleMap(LayoutInflater.from(getContext()));
+                                    }else if(MainActivity.usuarioLogin.getFavoritos()!=null && !MainActivity.usuarioLogin.getFavoritos().containsKey(estacion.getPlace_id())){
+                                        MainActivity.usuarioLogin.getFavoritos().put(estacion.getPlace_id(),estacion.getPlace_id());
+                                        mClusterManager.clearItems();
+                                        mClusterManager.cluster();
+
+                                        mClusterManager.addItems(copiaEstaciones);
+                                        mClusterManager.setRenderer(new MyClusterRenderer(getContext(), mMap,mClusterManager));
+                                        CustomInfoWindowGoogleMap customInfoWindow = new CustomInfoWindowGoogleMap(LayoutInflater.from(getContext()));
+                                        mClusterManager.getMarkerCollection()
+                                                .setOnInfoWindowAdapter(customInfoWindow);
+
+                                        mMap.setInfoWindowAdapter(mClusterManager.getMarkerManager());
+                                        mClusterManager.cluster();
+                                        //CustomInfoWindowGoogleMap customInfoWindow = new CustomInfoWindowGoogleMap(LayoutInflater.from(getContext()));
+                                        updateData.child("favoritos").setValue(MainActivity.usuarioLogin.getFavoritos());
+                                    }else{
+                                        MainActivity.usuarioLogin.getFavoritos().remove(estacion.getPlace_id());
+                                        updateData.child("favoritos").setValue(MainActivity.usuarioLogin.getFavoritos());
+                                       // MainActivity.usuarioLogin.getFavoritos().put(estacion.getPlace_id(),estacion.getPlace_id());
+                                        mClusterManager.clearItems();
+                                        mClusterManager.cluster();
+
+                                        mClusterManager.addItems(copiaEstaciones);
+                                        mClusterManager.setRenderer(new MyClusterRenderer(getContext(), mMap,mClusterManager));
+                                        CustomInfoWindowGoogleMap customInfoWindow = new CustomInfoWindowGoogleMap(LayoutInflater.from(getContext()));
+                                        mClusterManager.getMarkerCollection()
+                                                .setOnInfoWindowAdapter(customInfoWindow);
+
+                                        mMap.setInfoWindowAdapter(mClusterManager.getMarkerManager());
+                                        mClusterManager.cluster();
+                                        //CustomInfoWindowGoogleMap customInfoWindow = new CustomInfoWindowGoogleMap(LayoutInflater.from(getContext()));
+                                    }
+
+                                    doubleTap=0;
+                                    marker.hideInfoWindow();
+                                    marker.showInfoWindow();
+                                }else{
+                                    Toast.makeText(getContext(),"Inicie sesión para empezar a agregar favoritos ♥",Toast.LENGTH_LONG).show();
+                                }
+                            }
                         }
 
 
-                        marker.hideInfoWindow();
-                        marker.showInfoWindow();
-                    }else{
-                        Toast.makeText(getContext(),"Inicie sesión para empezar a agregar favoritos ♥",Toast.LENGTH_LONG).show();
-                    }
-
-                }
-            }
-
         });
-        mClusterManager.cluster();
+
     }
 
     private BitmapDescriptor bitmapDescriptorFromVector(Context context, int vectorResId) {
@@ -1372,15 +1277,27 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback {
         @Override
         protected void onBeforeClusterItemRendered(Estaciones item,
                                                    MarkerOptions markerOptions) {
-            BitmapDescriptor markerDescriptor;
+            BitmapDescriptor markerDescriptor=null;
             if(item.getPosicion()==1)
                 markerDescriptor = bitmapDescriptorFromVector(getContext(),R.drawable.gas_stationdorada);
             else if(item.getPosicion()==2)
                 markerDescriptor = bitmapDescriptorFromVector(getContext(),R.drawable.gas_stationplata);
             else if(item.getPosicion()==3)
                 markerDescriptor = bitmapDescriptorFromVector(getContext(),R.drawable.gas_stationbronce);
+            else if(MainActivity.usuarioLogin!=null){
+                if (MainActivity.usuarioLogin.getFavoritos()!=null) {
+                    if (MainActivity.usuarioLogin.getFavoritos().containsKey(item.getPlace_id())) {
+                        markerDescriptor = bitmapDescriptorFromVector(getContext(), R.drawable.gas_stationfav);
+                    } else
+                        markerDescriptor = bitmapDescriptorFromVector(getContext(), R.drawable.gas_stationgris);
+                }
+                else
+                    markerDescriptor = bitmapDescriptorFromVector(getContext(), R.drawable.gas_stationgris);
+            }
             else
                 markerDescriptor = bitmapDescriptorFromVector(getContext(),R.drawable.gas_stationgris);
+
+
 
             markerOptions.icon(markerDescriptor);
         }

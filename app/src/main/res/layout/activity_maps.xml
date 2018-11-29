@@ -29,32 +29,6 @@
 
 
 
-
-    <!--<RelativeLayout-->
-        <!--android:id="@+id/linearLayout3"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_gravity="top"-->
-        <!--android:adjustViewBounds="true"-->
-        <!--android:gravity="right|center_horizontal"-->
-        <!--android:orientation="horizontal">-->
-
-        <!--<Button-->
-            <!--android:id="@+id/button7"-->
-            <!--android:layout_width="60dp"-->
-            <!--android:layout_height="60dp"-->
-
-            <!--android:layout_marginRight="12dp"-->
-            <!--android:layout_marginTop="10dp"-->
-
-            <!--android:background="@drawable/button1"-->
-            <!--android:text="?"-->
-            <!--android:textColor="#ffffff"-->
-            <!--android:textSize="35dp" />-->
-
-
-    <!--</RelativeLayout>-->
-
     <RelativeLayout
         android:id="@+id/linearLayout4"
         android:layout_width="match_parent"

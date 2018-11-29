@@ -176,6 +176,7 @@ public class parserXML {
         String y=null;
         String placeid=null;
 
+
         String category=null;
 
         placeid=parser.getAttributeValue(null,ETIQUETA_PLACEID);

@@ -14,7 +14,7 @@ public class FavsActivity extends AppCompatActivity implements OnFavTouchedListe
         super.onCreate(savedInstanceState);
 
         if(MainActivity.user!=null){
-            if(MainActivity.usuarioLogin.getFavoritos()==null){
+            if(MainActivity.usuarioLogin.getFavoritos()==null || MainActivity.usuarioLogin.getFavoritos().size()==0){
                 setContentView(R.layout.activity_favsnofavs);
             }else {
                 setContentView(R.layout.activity_favs);

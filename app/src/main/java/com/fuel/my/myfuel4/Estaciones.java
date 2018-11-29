@@ -27,6 +27,7 @@ public class Estaciones implements ClusterItem, Serializable {
             this.x = x;
             this.y = y;
             this.category = category;
+            this.posicion=0;
         }
 
         public String getX() {

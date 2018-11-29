@@ -6,6 +6,7 @@ import android.widget.RadioGroup;
 
 public class SettingsActivity extends AppCompatActivity {
     public static int variablereturn=0;
+    public static int variableUpdate=0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -27,6 +28,7 @@ public class SettingsActivity extends AppCompatActivity {
                 radioGroup.check(findViewById(R.id.radioButton2).getId());
             if(MapsActivity.tipoGasolina==3)
                 radioGroup.check(findViewById(R.id.radioButton3).getId());
+
         }
 
         radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener()
@@ -35,6 +37,7 @@ public class SettingsActivity extends AppCompatActivity {
             public void onCheckedChanged(RadioGroup group, int checkedId) {
 
                 if (checkedId== findViewById(R.id.radioButton).getId()){
+                    variableUpdate=1;
                     MapsActivity.tipoGasolina=1;
                     if (MainActivity.user!=null)
                     MainActivity.usuarioLogin.setTipogasolina("1");
@@ -45,6 +48,7 @@ public class SettingsActivity extends AppCompatActivity {
 
                 if (checkedId== findViewById(R.id.radioButton2).getId())
                 {
+                    variableUpdate=1;
                     MapsActivity.tipoGasolina=2;
                     if (MainActivity.user!=null)
                     MainActivity.usuarioLogin.setTipogasolina("2");
@@ -56,6 +60,7 @@ public class SettingsActivity extends AppCompatActivity {
                 if (checkedId== findViewById(R.id.radioButton3).getId())
 
                 {
+                    variableUpdate=1;
                     MapsActivity.tipoGasolina=3;
                     if (MainActivity.user!=null)
                     MainActivity.usuarioLogin.setTipogasolina("3");
@@ -63,6 +68,9 @@ public class SettingsActivity extends AppCompatActivity {
                         variablereturn=1;
                     }
                 }
+
+
+
             }
         });
     }
